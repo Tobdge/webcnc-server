@@ -75,19 +75,19 @@ app.get("/", (req, res) => {
 });
 
 // --- Registrar CNC ---
-app.post("/api/register-cnc", async (req, res) => {
-  const { uuid, nombre, modelo, ubicacion } = req.body;
+// Listar todas las CNC registradas
+app.get("/api/cnc", async (req, res) => {
   const { data, error } = await supabase
     .from("cnc")
-    .insert([{ uuid, nombre, modelo, ubicacion, estado: "offline" }])
-    .select();
+    .select("*")
+    .order("id_cnc", { ascending: true });
 
   if (error) {
-    console.error("❌ Error al registrar CNC:", error.message);
+    console.error("❌ Error al obtener CNCs:", error.message);
     return res.status(400).json({ error: error.message });
   }
 
-  res.json({ message: "✅ CNC registrada en Supabase", data });
+  res.json({ message: "✅ CNCs obtenidas correctamente", data });
 });
 
 // --- Crear trabajo ---
