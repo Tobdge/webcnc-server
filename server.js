@@ -90,6 +90,28 @@ app.get("/api/cnc", async (req, res) => {
   res.json({ message: "✅ CNCs obtenidas correctamente", data });
 });
 
+// --- Registrar nueva CNC ---
+app.post("/api/register-cnc", async (req, res) => {
+  try {
+    const { uuid, nombre, modelo, ubicacion, estado } = req.body;
+
+    if (!uuid || !nombre || !modelo)
+      return res.status(400).json({ error: "Faltan datos obligatorios" });
+
+    const { data, error } = await supabase
+      .from("cnc")
+      .insert([{ uuid, nombre, modelo, ubicacion, estado: estado || "offline" }])
+      .select();
+
+    if (error) throw error;
+
+    res.json({ message: "✅ CNC registrada en Supabase", data });
+  } catch (err) {
+    console.error("❌ Error al registrar CNC:", err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // --- Crear trabajo ---
 app.post("/api/trabajos", async (req, res) => {
   const { id_cnc, id_diseno, duracion, estado } = req.body;
