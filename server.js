@@ -283,23 +283,26 @@ app.post("/send/:uuid", (req, res) => {
   res.json({ message: `Comando enviado a ${uuid}` });
 });
 
-// --- Listar usuarios ---
+// --- Obtener usuarios ---
 app.get("/api/usuarios", async (req, res) => {
   const { data, error } = await supabase
     .from("usuario")
     .select("*")
     .order("id_usuario", { ascending: true });
+
   if (error) return res.status(400).json({ error: error.message });
   res.json({ message: "✅ Usuarios obtenidos", data });
 });
 
 // --- Registrar usuario ---
 app.post("/api/usuarios", async (req, res) => {
-  const { nombre, correo, rol, contrasena } = req.body;
+  const { email, password, id_rol } = req.body;
+
   const { data, error } = await supabase
     .from("usuario")
-    .insert([{ nombre, correo, rol, contrasena, estado: "activo" }])
+    .insert([{ email, password, id_rol }])
     .select();
+
   if (error) return res.status(400).json({ error: error.message });
   res.json({ message: "✅ Usuario creado", data });
 });
@@ -307,12 +310,14 @@ app.post("/api/usuarios", async (req, res) => {
 // --- Editar usuario ---
 app.put("/api/usuarios/:id", async (req, res) => {
   const { id } = req.params;
-  const { nombre, correo, rol, estado } = req.body;
+  const { email, password, id_rol } = req.body;
+
   const { data, error } = await supabase
     .from("usuario")
-    .update({ nombre, correo, rol, estado })
+    .update({ email, password, id_rol })
     .eq("id_usuario", id)
     .select();
+
   if (error) return res.status(400).json({ error: error.message });
   res.json({ message: "✅ Usuario actualizado", data });
 });
@@ -321,6 +326,7 @@ app.put("/api/usuarios/:id", async (req, res) => {
 app.delete("/api/usuarios/:id", async (req, res) => {
   const { id } = req.params;
   const { error } = await supabase.from("usuario").delete().eq("id_usuario", id);
+
   if (error) return res.status(400).json({ error: error.message });
   res.json({ message: "✅ Usuario eliminado" });
 });
