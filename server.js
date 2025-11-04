@@ -283,10 +283,12 @@ app.post("/send/:uuid", (req, res) => {
   res.json({ message: `Comando enviado a ${uuid}` });
 });
 
-
 // --- Listar usuarios ---
 app.get("/api/usuarios", async (req, res) => {
-  const { data, error } = await supabase.from("usuarios").select("*").order("id_usuario", { ascending: true });
+  const { data, error } = await supabase
+    .from("usuario")
+    .select("*")
+    .order("id_usuario", { ascending: true });
   if (error) return res.status(400).json({ error: error.message });
   res.json({ message: "✅ Usuarios obtenidos", data });
 });
@@ -295,7 +297,7 @@ app.get("/api/usuarios", async (req, res) => {
 app.post("/api/usuarios", async (req, res) => {
   const { nombre, correo, rol, contrasena } = req.body;
   const { data, error } = await supabase
-    .from("usuarios")
+    .from("usuario")
     .insert([{ nombre, correo, rol, contrasena, estado: "activo" }])
     .select();
   if (error) return res.status(400).json({ error: error.message });
@@ -307,7 +309,7 @@ app.put("/api/usuarios/:id", async (req, res) => {
   const { id } = req.params;
   const { nombre, correo, rol, estado } = req.body;
   const { data, error } = await supabase
-    .from("usuarios")
+    .from("usuario")
     .update({ nombre, correo, rol, estado })
     .eq("id_usuario", id)
     .select();
@@ -318,7 +320,7 @@ app.put("/api/usuarios/:id", async (req, res) => {
 // --- Eliminar usuario ---
 app.delete("/api/usuarios/:id", async (req, res) => {
   const { id } = req.params;
-  const { error } = await supabase.from("usuarios").delete().eq("id_usuario", id);
+  const { error } = await supabase.from("usuario").delete().eq("id_usuario", id);
   if (error) return res.status(400).json({ error: error.message });
   res.json({ message: "✅ Usuario eliminado" });
 });
