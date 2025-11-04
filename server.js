@@ -306,20 +306,31 @@ app.post("/api/usuarios", async (req, res) => {
   if (error) return res.status(400).json({ error: error.message });
   res.json({ message: "✅ Usuario creado", data });
 });
-
 // --- Editar usuario ---
 app.put("/api/usuarios/:id", async (req, res) => {
-  const { id } = req.params;
-  const { email, password, id_rol } = req.body;
+  try {
+    const { id } = req.params;
+    const { email, password, id_rol } = req.body;
 
-  const { data, error } = await supabase
-    .from("usuario")
-    .update({ email, password, id_rol })
-    .eq("id_usuario", id)
-    .select();
+    console.log("🟡 Actualizando usuario:", { id, email, password, id_rol });
 
-  if (error) return res.status(400).json({ error: error.message });
-  res.json({ message: "✅ Usuario actualizado", data });
+    const { data, error } = await supabase
+      .from("usuario") // ⚠️ o "usuarios", si tu tabla es plural
+      .update({ email, password, id_rol })
+      .eq("id_usuario", id)
+      .select();
+
+    if (error) throw error;
+
+    if (!data || data.length === 0) {
+      return res.status(404).json({ message: "❌ No se encontró el usuario para actualizar" });
+    }
+
+    res.json({ message: "✅ Usuario actualizado correctamente", data });
+  } catch (err) {
+    console.error("❌ Error al actualizar usuario:", err.message);
+    res.status(400).json({ error: err.message });
+  }
 });
 
 // --- Eliminar usuario ---
