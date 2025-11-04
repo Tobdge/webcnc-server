@@ -91,6 +91,7 @@ app.get("/api/cnc", async (req, res) => {
 });
 
 // --- Registrar nueva CNC ---
+
 app.post("/api/register-cnc", async (req, res) => {
   try {
     const { uuid, nombre, modelo, ubicacion, estado } = req.body;
@@ -111,6 +112,47 @@ app.post("/api/register-cnc", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+// --- Editar CNC ---
+app.put("/api/cnc/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { nombre, modelo, ubicacion, estado } = req.body;
+
+    const { data, error } = await supabase
+      .from("cnc")
+      .update({ nombre, modelo, ubicacion, estado })
+      .eq("id_cnc", id)
+      .select();
+
+    if (error) throw error;
+
+    res.json({ message: "✅ CNC actualizada correctamente", data });
+  } catch (err) {
+    console.error("❌ Error al actualizar CNC:", err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// --- Eliminar CNC ---
+app.delete("/api/cnc/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const { error } = await supabase
+      .from("cnc")
+      .delete()
+      .eq("id_cnc", id);
+
+    if (error) throw error;
+
+    res.json({ message: "✅ CNC eliminada correctamente" });
+  } catch (err) {
+    console.error("❌ Error al eliminar CNC:", err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 
 // --- Crear trabajo ---
 app.post("/api/trabajos", async (req, res) => {
